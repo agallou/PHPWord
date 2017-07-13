@@ -41,11 +41,7 @@ class Image extends AbstractElement
             return;
         }
 
-        if ($element->isWatermark()) {
-            $this->writeWatermark($xmlWriter, $element);
-        } else {
-            $this->writeImage($xmlWriter, $element);
-        }
+        $this->writeImage($xmlWriter, $element);
     }
 
     /**
@@ -57,60 +53,108 @@ class Image extends AbstractElement
     {
         $rId = $element->getRelationId() + ($element->isInSection() ? 6 : 0);
         $style = $element->getStyle();
+
         $styleWriter = new ImageStyleWriter($xmlWriter, $style);
 
-        if (!$this->withoutP) {
-            $xmlWriter->startElement('w:p');
-            $styleWriter->writeAlignment();
-        }
-        $this->writeCommentRangeStart();
-
-        $xmlWriter->startElement('w:r');
-        $xmlWriter->startElement('w:pict');
-        $xmlWriter->startElement('v:shape');
-        $xmlWriter->writeAttribute('type', '#_x0000_t75');
-
-        $styleWriter->write();
-
-        $xmlWriter->startElement('v:imagedata');
-        $xmlWriter->writeAttribute('r:id', 'rId' . $rId);
-        $xmlWriter->writeAttribute('o:title', '');
-        $xmlWriter->endElement(); // v:imagedata
-
-        $xmlWriter->endElement(); // v:shape
-        $xmlWriter->endElement(); // w:pict
-        $xmlWriter->endElement(); // w:r
-
-        $this->endElementP();
-    }
-
-    /**
-     * Write watermark element.
-     *
-     * @return void
-     */
-    private function writeWatermark(XMLWriter $xmlWriter, ImageElement $element)
-    {
-        $rId = $element->getRelationId();
-        $style = $element->getStyle();
-        $style->setPositioning('absolute');
-        $styleWriter = new ImageStyleWriter($xmlWriter, $style);
+        $cx = \PhpOffice\PhpWord\Shared\Converter::pixelToEmu($style->getWidth());
+        $cy = \PhpOffice\PhpWord\Shared\Converter::pixelToEmu($style->getHeight());
 
         $xmlWriter->startElement('w:p');
+        $styleWriter->writeAlignment();
         $xmlWriter->startElement('w:r');
-        $xmlWriter->startElement('w:pict');
-        $xmlWriter->startElement('v:shape');
-        $xmlWriter->writeAttribute('type', '#_x0000_t75');
 
-        $styleWriter->write();
+        $xmlWriter->startElement('w:drawing');
 
-        $xmlWriter->startElement('v:imagedata');
-        $xmlWriter->writeAttribute('r:id', 'rId' . $rId);
-        $xmlWriter->writeAttribute('o:title', '');
-        $xmlWriter->endElement(); // v:imagedata
-        $xmlWriter->endElement(); // v:shape
-        $xmlWriter->endElement(); // w:pict
-        $xmlWriter->endElement(); // w:r
-        $xmlWriter->endElement(); // w:p
+        $xmlWriter->startElement('wp:inline');
+        $xmlWriter->writeAttribute('distT', 0);
+        $xmlWriter->writeAttribute('distB', 0);
+        $xmlWriter->writeAttribute('distL', 114300);
+        $xmlWriter->writeAttribute('distR', 114300);
+
+        $xmlWriter->startElement('wp:extent');
+        $xmlWriter->writeAttribute('cx', $cx);
+        $xmlWriter->writeAttribute('cy', $cy);
+        $xmlWriter->endElement(); //wp:extent
+
+        $xmlWriter->startElement('wp:docPr');
+        $xmlWriter->writeAttribute('id', $rId);
+        $xmlWriter->writeAttribute('name', 'name');
+        $xmlWriter->writeAttribute('descr', 'aa');
+        $xmlWriter->endElement(); // wp:docPr
+
+        $xmlWriter->startElement('wp:cNvGraphicFramePr');
+        $xmlWriter->startElement('a:graphicFrameLocks');
+        $xmlWriter->writeAttribute('xmlns:a', 'http://schemas.openxmlformats.org/drawingml/2006/main');
+        $xmlWriter->writeAttribute('noChangeAspect', 1);
+        $xmlWriter->endElement(); //a:graphicFrameLocks
+        $xmlWriter->endElement(); // wp:cNvGraphicFramePr
+
+        $xmlWriter->startElement('a:graphic');
+        $xmlWriter->writeAttribute('xmlns:a', 'http://schemas.openxmlformats.org/drawingml/2006/main');
+        $xmlWriter->startElement('a:graphicData');
+        $xmlWriter->writeAttribute('uri', 'http://schemas.openxmlformats.org/drawingml/2006/picture');
+        $xmlWriter->startElement('pic:pic');
+        $xmlWriter->writeAttribute('xmlns:pic', 'http://schemas.openxmlformats.org/drawingml/2006/picture');
+
+
+        $xmlWriter->startElement('pic:nvPicPr');
+        $xmlWriter->startElement('pic:cNvPr');
+        $xmlWriter->writeAttribute('id', 3);
+        $xmlWriter->writeAttribute('desc', 'aa');
+        $xmlWriter->writeAttribute('name', 'name');
+        $xmlWriter->endElement(); //pic:cNvPr
+        $xmlWriter->startElement('pic:cNvPicPr');
+        $xmlWriter->startElement('a:picLocks');
+        $xmlWriter->writeAttribute('noChangeAspect', '1');
+        $xmlWriter->endElement(); //a:picLocks
+        $xmlWriter->endElement(); //pic:cNvPicPr
+        $xmlWriter->endElement(); //pic:nvPicPr
+
+
+        $xmlWriter->startElement('pic:blipFill');
+
+        $xmlWriter->startElement('a:blip');
+        $xmlWriter->writeAttribute('r:embed', 'rId' .$rId);
+        $xmlWriter->endElement(); //a:blip
+
+        $xmlWriter->startElement('a:stretch');
+        $xmlWriter->startElement('a:fillRect');
+        $xmlWriter->endElement(); //a:fillRect
+        $xmlWriter->endElement(); //a:stretch
+
+        $xmlWriter->endElement(); //pic:blipFill
+
+        $xmlWriter->startElement('pic:spPr');
+        $xmlWriter->startElement('a:xfrm');
+
+        $xmlWriter->startElement('a:off');
+        $xmlWriter->writeAttribute('x', 0);
+        $xmlWriter->writeAttribute('y', 0);
+        $xmlWriter->endElement(); //a:off
+
+        $xmlWriter->startElement('a:ext');
+        $xmlWriter->writeAttribute('cx', $cx);
+        $xmlWriter->writeAttribute('cy', $cy);
+        $xmlWriter->endElement(); //a:ext
+
+        $xmlWriter->endElement(); //a:xfrm
+
+        $xmlWriter->startElement('a:prstGeom');
+        $xmlWriter->writeAttribute('prst', 'rect');
+        $xmlWriter->startElement('a:avLst');
+        $xmlWriter->endElement(); //a:avLst
+        $xmlWriter->endElement(); //a:prstGeom
+
+        $xmlWriter->endElement(); //pic:spPr
+
+        $xmlWriter->endElement(); //pic:pic
+        $xmlWriter->endElement(); //a:graphicData
+        $xmlWriter->endElement(); //a:graphic
+        $xmlWriter->endElement(); //wp:inline
+        $xmlWriter->endElement(); //w:drawing
+
+        $xmlWriter->endElement(); //w:r
+        $xmlWriter->endElement(); //w:p
     }
 }
+
