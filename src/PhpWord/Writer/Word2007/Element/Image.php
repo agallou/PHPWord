@@ -63,18 +63,31 @@ class Image extends AbstractElement
         $styleWriter->writeAlignment();
         $xmlWriter->startElement('w:r');
 
+        $xmlWriter->startElement('w:rPr');
+        $xmlWriter->startElement('w:noProof');
+        $xmlWriter->endElement();
+        $xmlWriter->endElement(); //w:rPr
+
+
         $xmlWriter->startElement('w:drawing');
 
         $xmlWriter->startElement('wp:inline');
         $xmlWriter->writeAttribute('distT', 0);
         $xmlWriter->writeAttribute('distB', 0);
-        $xmlWriter->writeAttribute('distL', 114300);
-        $xmlWriter->writeAttribute('distR', 114300);
+        $xmlWriter->writeAttribute('distL', 0);
+        $xmlWriter->writeAttribute('distR', 0);
 
         $xmlWriter->startElement('wp:extent');
         $xmlWriter->writeAttribute('cx', $cx);
         $xmlWriter->writeAttribute('cy', $cy);
         $xmlWriter->endElement(); //wp:extent
+
+        $xmlWriter->startElement('wp:effectExtent');
+        $xmlWriter->writeAttribute('l', 0);
+        $xmlWriter->writeAttribute('t', 0);
+        $xmlWriter->writeAttribute('r', 0);
+        $xmlWriter->writeAttribute('b', 0);
+        $xmlWriter->endElement();
 
         $xmlWriter->startElement('wp:docPr');
         $xmlWriter->writeAttribute('id', $rId);
@@ -83,10 +96,6 @@ class Image extends AbstractElement
         $xmlWriter->endElement(); // wp:docPr
 
         $xmlWriter->startElement('wp:cNvGraphicFramePr');
-        $xmlWriter->startElement('a:graphicFrameLocks');
-        $xmlWriter->writeAttribute('xmlns:a', 'http://schemas.openxmlformats.org/drawingml/2006/main');
-        $xmlWriter->writeAttribute('noChangeAspect', 1);
-        $xmlWriter->endElement(); //a:graphicFrameLocks
         $xmlWriter->endElement(); // wp:cNvGraphicFramePr
 
         $xmlWriter->startElement('a:graphic');
@@ -100,7 +109,6 @@ class Image extends AbstractElement
         $xmlWriter->startElement('pic:nvPicPr');
         $xmlWriter->startElement('pic:cNvPr');
         $xmlWriter->writeAttribute('id', 3);
-        $xmlWriter->writeAttribute('desc', 'aa');
         $xmlWriter->writeAttribute('name', 'name');
         $xmlWriter->endElement(); //pic:cNvPr
         $xmlWriter->startElement('pic:cNvPicPr');
